@@ -29,16 +29,23 @@ const Index = () => {
   const selectDemo = (demo) => {
     setSelectedDemo(demo);
     // Fetch reactions and feedback for the selected demo
-    client.get(`${demo.id}:reactions`).then(data => {
+    client.getWithPrefix(`${demo.id}:reaction:`).then((data) => {
       if (data) {
-        setReactions(data);
+        const aggregatedReactions = data.reduce(
+          (acc, item) => {
+            acc[item.value.type] += 1;
+            return acc;
+          },
+          { smile: 0, meh: 0, frown: 0 }
+        );
+        setReactions(aggregatedReactions);
       } else {
         setReactions({ smile: 0, meh: 0, frown: 0 });
       }
     });
-    client.getWithPrefix(`${demo.id}:feedback:`).then(data => {
+    client.getWithPrefix(`${demo.id}:feedback:`).then((data) => {
       if (data) {
-        setFeedbackList(data.map(item => item.value));
+        setFeedbackList(data.map((item) => item.value));
       } else {
         setFeedbackList([]);
       }
@@ -46,9 +53,13 @@ const Index = () => {
   };
 
   const addReaction = (type) => {
-    const updatedReactions = { ...reactions, [type]: reactions[type] + 1 };
-    setReactions(updatedReactions);
-    client.set(`${selectedDemo.id}:reactions`, updatedReactions);
+    const reactionId = `${selectedDemo.id}:reaction:${new Date().getTime()}`;
+    client.set(reactionId, { type }).then(() => {
+      setReactions((prevReactions) => ({
+        ...prevReactions,
+        [type]: prevReactions[type] + 1,
+      }));
+    });
   };
 
   const addFeedback = () => {
