@@ -7,7 +7,8 @@ const Index = () => {
   const [demos, setDemos] = useState([]);
   const [newDemo, setNewDemo] = useState('');
   const [selectedDemo, setSelectedDemo] = useState(null);
-  const [feedback, setFeedback] = useState([]);
+  const [feedback, setFeedback] = useState('');
+  const [feedbackList, setFeedbackList] = useState([]);
   const [reactions, setReactions] = useState({ smile: 0, meh: 0, frown: 0 });
 
   useEffect(() => {
@@ -37,9 +38,9 @@ const Index = () => {
     });
     client.getWithPrefix(`${demo.id}:feedback:`).then(data => {
       if (data) {
-        setFeedback(data.map(item => item.value));
+        setFeedbackList(data.map(item => item.value));
       } else {
-        setFeedback([]);
+        setFeedbackList([]);
       }
     });
   };
@@ -53,7 +54,7 @@ const Index = () => {
   const addFeedback = () => {
     const feedbackId = `${selectedDemo.id}:feedback:${new Date().getTime()}`;
     client.set(feedbackId, feedback).then(() => {
-      setFeedback(prevFeedback => [...prevFeedback, feedback]);
+      setFeedbackList(prevFeedback => [...prevFeedback, feedback]);
       setFeedback('');
     });
   };
@@ -90,7 +91,7 @@ const Index = () => {
               <Text>{reactions.frown}</Text>
             </HStack>
             <VStack mt={4} spacing={2} align="stretch">
-              {feedback.map((fb, index) => (
+              {feedbackList.map((fb, index) => (
                 <Box key={index} p={2} borderWidth={1} borderRadius="md">
                   {fb}
                 </Box>
