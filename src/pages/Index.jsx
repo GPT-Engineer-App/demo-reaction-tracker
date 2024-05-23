@@ -53,13 +53,22 @@ const Index = () => {
   };
 
   const addReaction = (type) => {
+    if (!selectedDemo) {
+      console.error("No demo selected");
+      return;
+    }
+
     const reactionId = `${selectedDemo.id}:reaction:${new Date().getTime()}`;
-    client.set(reactionId, { type }).then(() => {
-      setReactions((prevReactions) => ({
-        ...prevReactions,
-        [type]: prevReactions[type] + 1,
-      }));
-    });
+    client.set(reactionId, { type })
+      .then(() => {
+        setReactions((prevReactions) => ({
+          ...prevReactions,
+          [type]: prevReactions[type] + 1,
+        }));
+      })
+      .catch((error) => {
+        console.error("Failed to add reaction:", error);
+      });
   };
 
   const addFeedback = () => {
