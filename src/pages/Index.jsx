@@ -29,7 +29,7 @@ const Index = () => {
     setSelectedDemo(demo);
     // Fetch reactions and feedback for the selected demo
     client.get(`${demo.id}:reactions`).then(data => {
-      if (data.length > 0) setReactions(data[0].value);
+      if (data) setReactions(data);
     });
     client.getWithPrefix(`${demo.id}:feedback:`).then(data => {
       setFeedback(data.map(item => item.value));
@@ -45,7 +45,7 @@ const Index = () => {
   const addFeedback = () => {
     const feedbackId = `${selectedDemo.id}:feedback:${new Date().getTime()}`;
     client.set(feedbackId, feedback).then(() => {
-      setFeedback([...feedback, feedback]);
+      setFeedback(prevFeedback => [...prevFeedback, feedback]);
       setFeedback('');
     });
   };
