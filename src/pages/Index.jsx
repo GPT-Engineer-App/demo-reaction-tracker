@@ -7,7 +7,7 @@ const Index = () => {
   const [demos, setDemos] = useState([]);
   const [newDemo, setNewDemo] = useState('');
   const [selectedDemo, setSelectedDemo] = useState(null);
-  const [feedback, setFeedback] = useState('');
+  const [feedback, setFeedback] = useState([]);
   const [reactions, setReactions] = useState({ smile: 0, meh: 0, frown: 0 });
 
   useEffect(() => {
@@ -29,10 +29,18 @@ const Index = () => {
     setSelectedDemo(demo);
     // Fetch reactions and feedback for the selected demo
     client.get(`${demo.id}:reactions`).then(data => {
-      if (data) setReactions(data);
+      if (data) {
+        setReactions(data);
+      } else {
+        setReactions({ smile: 0, meh: 0, frown: 0 });
+      }
     });
     client.getWithPrefix(`${demo.id}:feedback:`).then(data => {
-      setFeedback(data.map(item => item.value));
+      if (data) {
+        setFeedback(data.map(item => item.value));
+      } else {
+        setFeedback([]);
+      }
     });
   };
 
